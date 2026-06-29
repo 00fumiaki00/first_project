@@ -1,7 +1,7 @@
-def find_max(numbers):
-    max = numbers[0]
+def get_even_numbers(numbers):
+    even_list = []
     for num in numbers:
-        if num > max:
-            max = num
-    return max
-print(find_max([5,4,5,8,4,1]))
+        if num % 2 == 0:
+            even_list.append(num)
+    return even_list
+print(get_even_numbers([6,5,4,8,5,5,4]))
