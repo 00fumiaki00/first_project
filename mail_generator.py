@@ -1,3 +1,4 @@
+import json
 import anthropic
 from dotenv import load_dotenv
 
@@ -7,88 +8,38 @@ client = anthropic.Anthropic()
 
 print("=== 業務メール自動生成ツール ===\n")
 
+with open("patterns.json","r",encoding="utf-8") as f:   # patterns.json を読み込んで data に入れる。with open はファイルを開いて、終わったら自動で閉じる仕組み
+    data = json.load(f)
+
+
 instruction = input("指示書の内容を入力してください : \n")
 
-prompt = f"""以下の指示書から情報を読み取り、出発報告と到着報告の下書きを2通り生成してください。
+#　＝＝＝自動判断ロジック＝＝＝
+
+pattern_list = "\n".join([f'id:{p["id"]} name:{p["name"]} keywords:{p["keywords"]}' for p in data["patterns"]])
+
+detection_prompt = f"""以下の指示書を読んで、最も適切なパターンのidを数字1つだけ返してください。
 
 【指示書】
 {instruction}
 
-【指示書の読み方】
-- 最初の場所はシャーシの保管場所であり出発地ではない
-- 数字はシャーシ番号
-- →の後が実際の集荷場所（出発地）
-- 時間はHH:MM形式に変換すること
-- 「切り」の前の場所が切り離し場所
-- 指示書に記載の時間は集荷・荷下ろし・下船等の予定時間であり、出発時間・到着時間には使用しない
-- [　]　→　指示書から読み取って埋める
-- Markdownを使わず、プレーンテキストで出力してください。
-- 出力1・出力2というラベルは出力しないこと,---（区切り線）で2通りを分けること
+【パターン一覧】
+{pattern_list}
+"""
 
+detection = client.messages.create(
+    model="claude-haiku-4-5-20251001",
+    max_tokens=10,
+    messages=[{"role":"user", "content": detection_prompt}]
+)
 
-【出力1：出発報告の下書き】
-件名：配達集荷用　車番 [車番]
+pattern_id = detection.content[0].text.strip()
+selected = next(p for p in data["patterns"] if p["id"] == pattern_id)
+print(f"パターン判定：{selected['name']}\n")
 
-[集荷場所]集荷完了
+# ===自動判断ロジック===
 
-【積み荷】
-[積み荷]
-【設定温度】
-[設定温度]℃
-【出発地】
-[出発地]
-【出発時間】
-:
-【出発時温度】
-℃
-【封印】
-
-
-
-【到着地点】
-
-【到着時間】
-
-【到着温度】
-
-【封印】
-
-【切り離し場所】
-
-【異常】
-
-
-
-【出力2：到着報告の下書き】
-件名：配達集荷用　車番 [車番]
-
-[切り離し場所]切り
-
-【積み荷】
-[積み荷]
-【設定温度】
-[設定温度]℃
-【出発地】
-[出発地]
-【出発時間】
-:
-【出発時温度】
-℃
-【封印】
-
-
-【到着地点】
-[切り離し場所]
-【到着時間】
-:
-【到着温度】
-℃
-【封印】
-OK
-【切り離し場所】
-[切り離し場所]
-【異常】
-なし"""
+prompt = selected["prompt"] + f"\n\n【指示書】\n{instruction}"
 
 
 message = client.messages.create(
