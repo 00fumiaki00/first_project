@@ -30,6 +30,8 @@ detection_prompt = f"""以下の指示書を読んで、最も適切なパター
 指示書の結末（最後に出てくる動作）に一致するパターンを優先してください。
 例：「○○切り」で終わる → 切り関連のパターンを優先
 例：「自社乗船」で終わる → 乗船完了パターンを優先
+例：「配達後」などの配達を示す記述がある指示書は、必ず「通常配達」パターンを優先すること。
+例：「空車回送」パターンは、配達を伴わない単独の空車移動の指示書の場合のみ選ぶこと。
 
 """
 
@@ -39,7 +41,7 @@ detection = client.messages.create(
     messages=[{"role":"user", "content": detection_prompt}]
 )
 
-pattern_id = detection.content[0].text.strip()
+pattern_id = detection.content[0].text.strip().splitlines()[0].strip()
 selected = next(p for p in data["patterns"] if p["id"] == pattern_id)
 print(f"パターン判定：{selected['name']}\n")
 
