@@ -47,7 +47,16 @@ print(f"パターン判定：{selected['name']}\n")
 
 # ↑↑↑自動判断ロジック↑↑↑
 
-prompt = selected["prompt"] + f"\n\n【指示書】\n{instruction}"
+three_base = "千歳ベース" in instruction or "札幌ベース" in instruction or "道東ベース" in instruction
+
+if pattern_id == "4":
+    if three_base:
+        prompt = "以下の指示書から情報を読み取り、配達完了メールとシャーシ切りメールの下書きを２通り生成してください。\n\n" + selected["prompt_output1"] + "\n---\n\n" + selected["prompt_output2"] + f"\n\n【指示書】\n{instruction}"
+    else:
+        prompt = "以下の指示書から情報を読み取り、配達完了メールと空車回送メールの下書きを２通り生成してください。\n\n" + selected["prompt_output1"] + "\n---\n\n" + selected["prompt_output3"] + f"\n\n【指示書】\n{instruction}"
+else:
+    prompt = selected["prompt"] + f"\n\n【指示書】\n{instruction}"
+
 
 
 message = client.messages.create(
