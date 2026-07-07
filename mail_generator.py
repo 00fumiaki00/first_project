@@ -41,6 +41,8 @@ print(f"パターン判定：{selected['name']}\n")
 
 # ↑↑↑自動判断ロジック↑↑↑
 
+# ↓↓↓条件分岐（シャーシ切りか空車回送か判断）↓↓↓
+
 three_base = "千歳ベース" in instruction or "札幌ベース" in instruction or "道東ベース" in instruction
 
 if pattern_id == "4":
@@ -51,7 +53,7 @@ if pattern_id == "4":
 else:
     prompt = selected["prompt"] + f"\n\n【指示書】\n{instruction}"
 
-
+# ↑↑↑条件分岐（シャーシ切りか空車回送か判断）↑↑↑
 
 message = client.messages.create(
     model="claude-haiku-4-5-20251001",
