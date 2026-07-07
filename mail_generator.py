@@ -43,13 +43,17 @@ print(f"パターン判定：{selected['name']}\n")
 
 # ↓↓↓条件分岐（シャーシ切りか空車回送か判断）↓↓↓
 
-three_base = "千歳ベース" in instruction or "札幌ベース" in instruction or "道東ベース" in instruction
 
-if pattern_id == "4":
-    if three_base:
-        prompt = "以下の指示書から情報を読み取り、配達完了メールとシャーシ切りメールの下書きを２通り生成してください。\n\n" + selected["prompt_output1"] + "\n---\n\n" + selected["prompt_output2"] + f"\n\n【指示書】\n{instruction}"
-    else:
-        prompt = "以下の指示書から情報を読み取り、配達完了メールと空車回送メールの下書きを２通り生成してください。\n\n" + selected["prompt_output1"] + "\n---\n\n" + selected["prompt_output3"] + f"\n\n【指示書】\n{instruction}"
+if "common" in selected:
+    matched = False     # 最初は「まだ何も見つかってない」
+    for branch in selected["branches"]:
+        if any(keyword in instruction for keyword in branch.get("conditions",[])):
+            prompt = selected["common"] + branch["content"] + f"\n\n【指示書】\n{instruction}"
+            matched = True      # 「見つかった」に書き換える
+            break
+    if not matched:
+        default_branch = next(b for b in selected["branches"] if b.get("default"))
+        prompt = selected["common"] + default_branch["content"] + f"\n\n【指示書】\n{instruction}"
 else:
     prompt = selected["prompt"] + f"\n\n【指示書】\n{instruction}"
 
