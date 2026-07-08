@@ -36,6 +36,7 @@ detection = client.messages.create(
 )
 
 pattern_id = detection.content[0].text.strip().splitlines()[0].strip()
+print(f"[DEBUG] pattern_id = {repr(pattern_id)}")
 selected = next(p for p in data["patterns"] if p["id"] == pattern_id)
 print(f"パターン判定：{selected['name']}\n")
 
