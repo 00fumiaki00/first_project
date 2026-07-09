@@ -86,7 +86,8 @@ elif "common" in selected:
     if not matched:
         default_branch = next(b for b in selected["branches"] if b.get("default"))
         prompt = selected["common"] + default_branch["content"] + f"\n\n【指示書】\n{instruction}"
-        generate_and_print(prompt)
+    
+    generate_and_print(prompt)
 
 else:
     prompt = selected["prompt"] + f"\n\n【指示書】\n{instruction}"
