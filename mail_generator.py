@@ -69,11 +69,16 @@ print(f"[DEBUG] pickup_count = {pickup_count}")
 
 # ↓↓↓条件分岐（シャーシ切りか空車回送か判断）↓↓↓
 if "repeat_keyword" in selected:
+    with open(selected["departure_template_file"], "r", encoding="utf-8") as f:
+        departure_template = f.read()
+    with open(selected["arrival_template_file"], "r", encoding="utf-8") as f:
+        arrival_template = f.read()
+
     for i in range(1,pickup_count + 1):
         directive = f"\nこの指示書には集荷が全部で{pickup_count}回あります。今回は{i}回目の集荷分の出発報告だけ生成してください。"
-        prompt = selected["departure_template"] + directive + f"\n\n【指示書】\n{instruction}"
+        prompt = departure_template + directive + f"\n\n【指示書】\n{instruction}"
         generate_and_print(prompt)
-    prompt = selected["arrival_template"] + f"\n\n【指示書】\n{instruction}"
+    prompt = arrival_template + f"\n\n【指示書】\n{instruction}"
     generate_and_print(prompt)
 
 elif "common" in selected:
